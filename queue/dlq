@@ -1,0 +1,20 @@
+//modularização: dlq.js
+const deadLetterQueue = [];
+const dlqService = {
+	adicionar: (pedido, erro) => {
+	const itemFalho = {
+		pedidoOriginal: pedido,
+		motivoFalha: erro.message,
+		falhouEm: new Date().toISOString()
+		};
+		deadLetterQueue.push(itemFalho);
+		console.log(`[DLQ] Pedido #${pedido.id} isolado com segurança. Total na DLQ: ${deadLetterQueue.length}`)
+	},
+	listarTodos: () => {
+	return {
+		quantidade: deadLetterQueue.length,
+		itens: deadLetterQueue
+		};
+	},	
+};
+module.exports = dlqService;

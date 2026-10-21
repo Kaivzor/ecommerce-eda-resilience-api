@@ -1,0 +1,42 @@
+# Estudo de Arquitetura Orientada a Eventos com Node.js
+
+Este projeto é uma API simples de pagamentos desenvolvida para praticar o uso de eventos no Node.js, focando em como tratar falhas de comunicação entre serviços (como Banco de Dados e Logística) sem derrubar a aplicação.
+
+## O que foi usado
+**Node.js** (com o módulo nativo `events`)
+**Express** (para criar as rotas da API)
+**Thunder Client** (extensão do VS Code para testar as requisições)
+
+## Como o código foi organizado
+* `config/event.js`: Cria e exporta o centralizador de eventos.
+* `src/bancoDados.js`: Ouve o evento de novo pedido e simula o salvamento no banco.
+* `listeners/logistica.js`: Ouve o evento de novo pedido, simula uma falha de conexão e executa a lógica de retentativas.
+* `queue/dlq.js`: Uma fila simulada (Dead Letter Queue) para guardar os pedidos que falharam definitivamente.
+* `server.js`: Arquivo principal que liga a API Express e gerencia as rotas.
+
+## Como testar na sua máquina
+
+1. Instale as dependências do projeto:
+```bash
+npm install
+```
+
+2. Inicie o servidor:
+```bash
+node server.js
+```
+
+3. Envie um POST para `http://localhost:3000/pagamentos` usando o Thunder Client com o corpo em JSON:
+```json
+{
+  "id": 9999,
+  "clienteId": 77,
+  "valor": 1250.00
+}
+```
+
+4. **O fluxo de falha:** O arquivo de logística vai simular um erro de conexão. O código tentará refazer a comunicação 3 vezes (com pausas de 2 segundos). Se todas falharem, o pedido será isolado na DLQ.
+5. Para ver o pedido que falhou, acesse `http://localhost:3000/painel/dlq` no seu navegador.
+
+## Aprendizados deste projeto
+Desenvolvi este projeto para entender na prática como funcionam o desacoplamento de código usando eventos, os funcionamentos por trás dos sistemas de monitoramento e a prática para resiliência de código. Durante os testes, enfrentei erros de rotas que não batiam e descobri a importância do middleware `express.json()` para fazer o Express conseguir ler os dados em formato JSON enviados pelo usuário. Usei IA como suporte para corrigir erros de sintaxe e estruturar a lógica de pausas temporizadas (Retry) na logística.

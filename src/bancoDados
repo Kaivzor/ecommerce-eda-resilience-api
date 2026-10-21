@@ -1,0 +1,10 @@
+//modularização: bancoDados.js
+const ecommerceEvents = require('../config/event')
+
+ecommerceEvents.on('novoPedido', async (pedido) => {
+	try{
+		console.log(`[Banco de Dados] Salvando o pedido do cliente ID: ${pedido.clienteId || 'Desconhecido'}`);
+	} catch (error){
+		console.error(`[Erro Banco] Falha ao salvar pedido: ${error.message}`);
+	}
+});
